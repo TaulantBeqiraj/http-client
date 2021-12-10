@@ -65,15 +65,16 @@ func get(c *http.Client, url string) []byte {
 		log.Fatalf("Couldn't read response %v", buf2)
 	}
 
-	var ma []MarketAsset
-	err = json.Unmarshal(buf2, &ma)
+	var jsonData UserInfo
+	var jsonAssets UserAssets
+	err = json.Unmarshal(buf2, &jsonData)
+	err = json.Unmarshal(buf2, &jsonAssets)
 	if err != nil {
-		log.Printf("Failed to Unmarshall data %v", err)
+		fmt.Printf("Unmarshall error: %v\n", err)
 	}
+	fmt.Printf("User login: %v\nCurrent Balance is: %v\nUser Email: %v\n", jsonData.Login, jsonData.Balance, jsonData.Email)
+	fmt.Printf("Assets are: %v\n", jsonAssets.Assets)
 
-	for i, v := range ma {
-		fmt.Printf("Article no.%d\n Name: %v\n Price: %v\n\n", i, v.Name, v.Price)
-	}
 	return buf2
 }
 
@@ -82,10 +83,14 @@ func authorization() string {
 	return base64.StdEncoding.EncodeToString([]byte(auth))
 }
 
+func CurrentBalance() {
+
+}
+
 func main() {
 
 	client := &http.Client{}
 
-	get(client, baseURL+"/rates")
+	get(client, baseURL+"/account")
 
 }
