@@ -27,12 +27,12 @@ type UserAssets struct {
 	Assets []interface{} `json:"Assets"`
 }
 
-type MarketAsset struct {
-	Name  string
-	Price float64 `json:",string"` // string to float64
+func authorization() string {
+	auth := username + ":" + password
+	return base64.StdEncoding.EncodeToString([]byte(auth))
 }
 
-func get(c *http.Client, url string) []byte {
+func CurrentBalance(c *http.Client, url string) []byte {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Printf("Couldn't get the request: %v\n", err)
@@ -78,19 +78,10 @@ func get(c *http.Client, url string) []byte {
 	return buf2
 }
 
-func authorization() string {
-	auth := username + ":" + password
-	return base64.StdEncoding.EncodeToString([]byte(auth))
-}
-
-func CurrentBalance() {
-
-}
-
 func main() {
 
 	client := &http.Client{}
 
-	get(client, baseURL+"/account")
+	CurrentBalance(client, baseURL+"/account")
 
 }
