@@ -1,14 +1,31 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
 
 const baseURL = "http://shadow.disconnect.ch:8002"
+
+var (
+	username = "taulant"
+	password = "eCG58weaD6"
+)
+
+type UserInfo struct {
+	Login   string `json:"Login"`
+	Balance string `json:"Balance"`
+	Email   string `json:"Email"`
+}
+
+type UserAssets struct {
+	Assets []interface{} `json:"Assets"`
+}
 
 type MarketAsset struct {
 	Name  string
@@ -18,14 +35,22 @@ type MarketAsset struct {
 func get(c *http.Client, url string) []byte {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		panic(err)
+		log.Printf("Couldn't get the request: %v\n", err)
 	}
+
+	req.SetBasicAuth(username, password)
+	req.Header.Add("Authorization", "Basic "+authorization())
 
 	res, err := c.Do(req)
 	if err != nil {
 		log.Fatalf("Couldn't get the request %v", err)
 	}
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Fatalf("Failed to close Body %v", err)
+		}
+	}(res.Body)
 
 	if res.StatusCode != http.StatusOK {
 		if res.StatusCode == http.StatusUnauthorized {
@@ -50,6 +75,11 @@ func get(c *http.Client, url string) []byte {
 		fmt.Printf("Article no.%d\n Name: %v\n Price: %v\n\n", i, v.Name, v.Price)
 	}
 	return buf2
+}
+
+func authorization() string {
+	auth := username + ":" + password
+	return base64.StdEncoding.EncodeToString([]byte(auth))
 }
 
 func main() {
