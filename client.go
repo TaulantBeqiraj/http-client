@@ -11,7 +11,7 @@ import (
 	"net/http"
 )
 
-const baseURL = "http://shadow.disconnect.ch:8002"
+const baseURL = "http:///////////"
 
 var (
 	username = "taulant"
